@@ -199,6 +199,105 @@ class DashboardController extends Controller
 
         return Response::json('ok', 200);    
     }
+    public function addCars(Request $request)
+    {
+        $car_id=$request->id??0;
+        $maxNo = Car::max('no');
+        if($car_id){
+            $no = $request->no;
+        }else{
+            $no = $maxNo + 1;
+        }
+        $images=[];
+        $paid_amount = $request->paid_amount??0;
+        $purchase_price =$request->purchase_price;
+        $debt_price =$purchase_price - $paid_amount;
+        if($request->image ){
+            foreach ($request->image as $image) {
+                $imageName = $image->getClientOriginalName().$no;
+                $filename = pathinfo($imageName, PATHINFO_FILENAME);
+                $imagePath = UploadHelper::upload('image', $image, $filename, 'storage/car');
+                $images[] = $imagePath;
+            }    
+        }
+
+        if(!$car_id){
+        $car=Car::create([
+            'company_id' =>$request->company_id,
+            'name_id'=> $request->name_id,
+            'model_id'=> $request->model_id,
+            'color_id'=> $request->color_id,
+            'pin'=> $request->pin,
+            'purchase_data'=> $request->purchase_data,
+            'purchase_price'=> $purchase_price,
+            'paid_amount'=> $paid_amount,
+            'note'=> $request->note??'',
+            'image'=>$images ? json_encode($images):"",
+            'user_id'=> $request->user_id??0,
+            'no'=>$no,
+            'car_owner'=> $request->car_owner,
+            'car_type'=> $request->car_type,
+            'vin'=> $request->vin,
+            'car_number'=> $request->car_number,
+            'dinar'=> $request->dinar,
+            'dolar_price'=> $request->dolar_price,
+            'dolar_custom'=> $request->dolar_custom,
+            'shipping_dolar'=> $request->shipping_dolar,
+            'coc_dolar'=> $request->coc_dolar,
+            'checkout'=> $request->checkout,
+            'total'=> $request->total,
+            'paid'=> $request->paid,
+             ]);
+             if($paid_amount){
+                $desc=trans('text.payCar').' '.$purchase_price.trans('text.payDone').$paid_amount;
+             
+                $this->accountingController->decreaseWallet($paid_amount, $desc,$this->mainAccount->id,$car->id,'App\Models\Car');
+                $this->accountingController->increaseWallet($paid_amount, $desc,$this->outAccount->id,$car->id,'App\Models\Car' );
+                $this->accountingController->increaseWallet($paid_amount, $desc,$this->outSupplier->id,$car->id,'App\Models\Car');
+                if($debt_price){
+                   $this->accountingController->increaseWallet($debt_price, $desc,$this->debtSupplier->id,$car->id,'App\Models\Car');
+                }
+             }
+ 
+        }else{
+            $car=Car::find($car_id);
+            $purchase_price_old=$car->purchase_price;
+            if($purchase_price > $purchase_price_old){
+                $purchase_price_new = $purchase_price - $purchase_price_old;
+                $desc=trans('text.editCar').' '.trans('text.from').$purchase_price_old.trans('text.to').$purchase_price;
+                $this->accountingController->decreaseWallet($purchase_price_new, $desc,$this->mainAccount->id,$car->id,'App\Models\Car');
+                $this->accountingController->increaseWallet($purchase_price_new, $desc,$this->outAccount->id,$car->id,'App\Models\Car' );
+                $this->accountingController->decreaseWallet($purchase_price_new, $desc,$this->inAccount->id,$car->id,'App\Models\Car');
+                $this->accountingController->increaseWallet($purchase_price_new, $desc,$this->outSupplier->id,$car->id,'App\Models\Car');
+                $this->accountingController->increaseWallet($purchase_price_new, $desc,$this->debtSupplier->id,$car->id,'App\Models\Car');
+            }
+            if($purchase_price < $purchase_price_old){
+                $purchase_price_new =$purchase_price_old - $purchase_price;
+                $desc=trans('text.editCar').' '.trans('text.from').$purchase_price_old.trans('text.to').$purchase_price;
+                $this->accountingController->increaseWallet($purchase_price_new, $desc,$this->mainAccount->id,$car->id,'App\Models\Car');
+                $this->accountingController->decreaseWallet($purchase_price_new, $desc,$this->outAccount->id,$car->id,'App\Models\Car' );
+                $this->accountingController->increaseWallet($purchase_price_new, $desc,$this->inAccount->id,$car->id,'App\Models\Car');
+                $this->accountingController->decreaseWallet($purchase_price_new, $desc,$this->outSupplier->id,$car->id,'App\Models\Car');
+                $this->accountingController->decreaseWallet($purchase_price_new, $desc,$this->debtSupplier->id,$car->id,'App\Models\Car');
+
+            }
+            $car->update([
+                'company_id' =>$request->company_id,
+                'name_id'=> $request->name_id,
+                'model_id'=> $request->model_id,
+                'color_id'=> $request->color_id,
+                'pin'=> $request->pin,
+                'purchase_data'=> $request->purchase_data,
+                'purchase_price'=> $purchase_price,
+                'paid_amount'=> $paid_amount,
+                'note'=> $request->note??'',
+                'image'=>$images ? json_encode($images):"",
+                'no'=>$no
+                 ]);
+        }
+
+        return Response::json('ok', 200);    
+    }
     public function getIndexExpenses () {
 
         $expenses = Expenses::with('user')->paginate(10);

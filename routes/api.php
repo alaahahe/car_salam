@@ -50,6 +50,7 @@ Route::get('addName',[CarConfigController::class, 'storeName'])->name('addName')
 Route::get('addCarModel',[CarConfigController::class, 'storeCarModel'])->name('addCarModel');
 Route::get('addColor',[CarConfigController::class, 'storeColor'])->name('addColor');
 Route::post('addCar',[DashboardController::class, 'addCar'])->name('addCar');
+Route::post('addCars',[DashboardController::class, 'addCars'])->name('addCars');
 
 
 

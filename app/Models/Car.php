@@ -44,7 +44,21 @@ class Car extends Model
         'erbil_exp',
         'erbil_shipping',
         'dubai_exp',
-        'dubai_shipping'
+        'dubai_shipping',
+        'car_owner',
+        'car_type',
+        'vin',
+        'car_number',
+        'dinar',
+        'dolar_price',
+        'dolar_custom',
+        'checkout',
+        'shipping_dolar',
+        'coc_dolar',
+        'total',
+        'paid',
+        'profit	',
+        'date'
     ];
     public function user()
     {

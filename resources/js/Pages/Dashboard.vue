@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/inertia-vue3';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker'
-import ModalAddCar from "@/Components/ModalAddCar.vue";
+import ModalAddCar from "@/Components/ModalAddCars.vue";
 import ModalAddSale from "@/Components/ModalAddSale.vue";
 import ModalAddExpenses from "@/Components/ModalAddExpenses.vue";
 import ModalAddGenExpenses from "@/Components/ModalAddGenExpenses.vue";
@@ -204,7 +204,7 @@ const props =  defineProps({
     debtSupplier:Object,
 });
 function confirmCar(V) {
-  axios.post('/api/addCar',V)
+  axios.post('/api/addCars',V)
   .then(response => {
     showModalCar.value = false;
       window.location.reload();
@@ -525,7 +525,7 @@ getResultsCar();
                           <button
                             type="button"
                             @click="openAddFromBox()"
-                            style="min-width:150px;"
+                            style="min-width:250px;"
                             className="px-6 mb-12 mx-2 py-2 font-bold text-white bg-pink-600 rounded">
                             {{ $t('withdrawFromTheFund') }}   
                           </button>
@@ -593,7 +593,7 @@ getResultsCar();
                                         {{ $t('checkout') }}
                                       </th>
                                       <th scope="col" class="px-1 py-3 text-base">
-                                        {{ $t('all') }}
+                                        {{ $t('total') }}
                                       </th>
                                       <th scope="col" class="px-1 py-3 text-base">
                                         {{ $t('paid') }}
@@ -615,24 +615,23 @@ getResultsCar();
 
 
                                 <tr v-for="car in car.data" :key="car.id" :class="car.results == 0?'bg-gray-100 dark:bg-gray-600':car.results == 1 ?'bg-red-100 dark:bg-red-900':car.results == 2 ?'bg-green-100 dark:bg-green-900':''"  class="bg-white border-b dark:bg-gray-900 dark:border-gray-900 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base ">{{ car.no }}</td>
+                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.no }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.car_owner }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.car_type}}</td>
-                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.year?.name}}</td>
+                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.carmodel?.name}}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.color?.name }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.vin }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.car_number }}</td> 
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.dinar  }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.dolar_price}}</td>
-                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.dolar_custom }}</td> 
+                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ (car.dinar / car.dolar_price).toFixed(2) }}</td> 
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.note }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.shipping_dolar}}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.coc_dolar  }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.checkout}}</td>
-                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.dolar_custom }}</td> 
-                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.all }}</td>
+                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ (car.checkout+car.shipping_dolar+ car.coc_dolar +(car.dinar / car.dolar_price)).toFixed(1) }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.paid}}</td>
-                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.profit  }}</td>
+                                    <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ (car.paid-(car.checkout+car.shipping_dolar+ car.coc_dolar +(car.dinar / car.dolar_price))).toFixed(1)  }}</td>
                                     <td className="border dark:border-gray-800 text-center px-4 py-2 text-base">{{ car.date  }}</td>
                                     <!-- <td className="border dark:border-gray-800 text-start px-2 py-2">
                                     <button

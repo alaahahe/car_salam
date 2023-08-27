@@ -22,7 +22,7 @@
     "shipping_dolar": "Shipping Dollar",
     "coc_dolar": "COC Dollar",
     "checkout": "Checkout",
-    "all": "Total",
+    "total": "Total",
     "paid": "Paid",
     "vim": "Engine Number",
     "name": "Name",
@@ -111,6 +111,8 @@
     "login": "Login",
     "phone": "Phone",
     "number": "Number",
-    "debt": "Debt"
+    "debt": "Debt",
+    "add_car":"Add car"
+
   }
   
